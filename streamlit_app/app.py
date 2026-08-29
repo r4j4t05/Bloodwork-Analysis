@@ -2,9 +2,6 @@ import streamlit as st
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
 
-st.title("RAG App Test")
-st.write("Streamlit UI loaded successfully")
-
 load_dotenv()
 
 llm= ChatGoogleGenerativeAI(model="gemini-3.6-flash")
