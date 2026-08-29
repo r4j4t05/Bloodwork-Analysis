@@ -85,7 +85,7 @@ Blood report:
         with st.spinner("Generating diet plan..."):
 
             diet_prompt = f"""
-You are a professional nutritional specialist in Indian Diet System.
+You are a professional nutritional specialist in Indian Diet System. If the reference range isn't available in the report, make sure you use the universal ideal range, also mention if you've used the universal ideal range from the internet.
 
 Based on the blood report analysis below:
 
