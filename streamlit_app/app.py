@@ -2,50 +2,110 @@ import streamlit as st
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
 
+# Load environment variables
 load_dotenv()
 
-llm= ChatGoogleGenerativeAI(model="gemini-3.6-flash")
+# Initialize Gemini
+llm = ChatGoogleGenerativeAI(
+    model="gemini-3.6-flash",
+    thinking_level="low",
+    timeout=60,
+    max_retries=1
+)
 
-st.set_page_config(page_title="Bloodwork Analysis", layout="centered")
+# Page configuration
+st.set_page_config(
+    page_title="Bloodwork Analysis",
+    layout="centered"
+)
+
+# App title
 st.title("🩸 Bloodwork Analysis & Diet Plan Generator")
 
-st.write("Upload your blood report as a `.txt` file to get an extracted analysis and a personalized Indian diet plan.")
+st.write(
+    "Upload your blood report as a `.txt` file "
+    "to get an extracted analysis and a personalized Indian diet plan."
+)
 
-uploaded_file = st.file_uploader("Upload bloodwork.txt", type=["txt"])
+# Upload blood report
+uploaded_file = st.file_uploader(
+    "Upload bloodwork.txt",
+    type=["txt"]
+)
 
 if uploaded_file is not None:
+
+    # Read uploaded file
     bloodreport = uploaded_file.read().decode("utf-8")
 
+    # Display uploaded report
     st.subheader("📄 Uploaded Blood Report")
     st.text(bloodreport[:200])
 
+    # Run analysis button
     if st.button("Run Analysis"):
+
+        # --------------------------------------------------
+        # STAGE 1: Extract blood test values
+        # --------------------------------------------------
+
         with st.spinner("Extracting values from bloodwork..."):
-            extraction_prompt=f"""
-You are medical data extraction assistant
-From the blood reports below, extract all TEST values, and classify each one as HIGH, LOW, OR NORMAL
-Use the format below for reference to show the results
-- Test Name: value| Status: HIGH/LOW/NORMAL| Reference: range
+
+            extraction_prompt = f"""
+You are a medical data extraction assistant.
+
+Extract every blood test from the report below.
+
+For each test, return exactly this format:
+
+- Test Name: value | Status: HIGH/LOW/NORMAL | Reference: range
+
+Classify each value as HIGH, LOW, or NORMAL using the reference range
+provided in the report.
+
+Do not provide explanations.
+Do not provide medical advice.
+Do not omit any test.
 
 Blood report:
-{bloodreport}"""
-            extraction_response=llm.invoke(extraction_prompt)
-            extracted_values=extraction_response.text
+{bloodreport}
+"""
+
+            extraction_response = llm.invoke(extraction_prompt)
+
+            extracted_values = extraction_response.text
+
             st.subheader("=== Stage 1: Extracted Values ===")
             st.text(extracted_values)
 
+        # --------------------------------------------------
+        # STAGE 2: Generate diet plan
+        # --------------------------------------------------
+
         with st.spinner("Generating diet plan..."):
-            Diet_prompt=f"""
-You are professional nutrional specialist in Indian Diet System.
-Based on the blood reports extracted
+
+            diet_prompt = f"""
+You are a professional nutritional specialist in Indian Diet System. If the reference range isn't available in the report, make sure you use the universal ideal range, also mention if you've used the universal ideal range from the internet.
+
+Based on the blood report analysis below:
+
 - Prepare a brief summary of 4-5 lines.
-- Prepare a proper diet plan with having (1) foods to avoid (2) foods to consume more accordingly.
-Don't include any other thing in diet plan, and keep it simple as possible
+- Prepare a simple diet plan containing:
+  1. Foods to avoid
+  2. Foods to consume more
+
+Don't include anything else in the diet plan.
+Keep it as simple as possible.
 
 Bloodwork analysis:
-{extracted_values}"""
-            Diet_response=llm.invoke(Diet_prompt)
-            st.subheader(" ==== DIET PLAN  ==== ")
-            st.markdown(Diet_response.text)
+{extracted_values}
+"""
+
+            diet_response = llm.invoke(diet_prompt)
+
+            st.subheader("==== DIET PLAN ====")
+            st.markdown(diet_response.text)
+
 else:
+
     st.info("Please upload a bloodwork .txt file to begin.")
