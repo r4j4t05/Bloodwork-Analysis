@@ -2,3 +2,8 @@ streamlit
 pandas
 numpy
 python-dotenv
+streamlit
+pandas
+numpy
+python-dotenv
+langchain-google-genai
