@@ -4,7 +4,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 
 load_dotenv()
 
-llm= ChatGoogleGenerativeAI(model="gemini-3.6-flash")
+llm= ChatGoogleGenerativeAI(model="gemini-3.7-flash")
 
 st.set_page_config(page_title="Bloodwork Analysis", layout="centered")
 st.title("🩸 Bloodwork Analysis & Diet Plan Generator")
